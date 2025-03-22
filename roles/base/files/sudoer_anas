@@ -1,0 +1,2 @@
+#managed by ansible
+anas ALL=(ALL) NOPASSWD: ALL

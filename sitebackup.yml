@@ -1,0 +1,103 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates for Fedora
+    tags: always
+    ansible.builtin.dnf:
+      update_only: yes
+      update_cache: yes
+      use_backend: dnf4
+    when: ansible_distribution == "Fedora"
+
+  - name: install updates for Ubuntu
+    tags: always
+    ansible.builtin.apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: create lyssa account
+    tags: always
+    ansible.builtin.user:
+      name: lyssa
+      groups: root
+
+  - name: add lyssa to sudoers.d directory
+    tags: always
+    ansible.builtin.copy:
+      src: sudoer_lyssa
+      dest: /etc/sudoers.d/lyssa
+      owner: root
+      group: root
+      mode: 0440
+
+  - name: add public key to lyssa account (in the authorized_keys)
+    tags: always
+    ansible.builtin.authorized_key:
+      user: lyssa
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICa7UuZ3+m0W2g2fpSRu/A2BjkEbuShLMuWlJ/tFHQuy hamil@ubuntu-ws"
+
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: install apache on web servers
+    tags: apache,ubuntu
+    ansible.builtin.apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+    when: ansible_distribution == "Ubuntu"
+
+  - name: ensure apache is running (Ubuntu)
+    tags: apache,ubuntu
+    ansible.builtin.service:
+      name: apache2
+      state: started
+    when: ansible_distribution == "Ubuntu"
+
+  - name: ensure apache is running (Fedora)
+    tags: apache,fedora
+    ansible.builtin.service:
+      name: httpd
+      state: started
+    when: ansible_distribution == "Fedora"
+
+  - name: copy html file to site
+    tags: apache,ubuntu
+    ansible.builtin.copy:
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: change email address for admin
+    tags: apache,fedora
+    ansible.builtin.lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin hdimapanat@gmail.com
+    when: ansible_distribution == "Fedora"
+    register: httpd
+
+  - name: restart httpd
+    tags: apache,fedora
+    ansible.builtin.service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install mariadb package on db servers
+    tags: db, fedora
+    ansible.builtin.dnf:
+      name: mariadb
+      state: latest
+      use_backend: dnf4
+    when: ansible_distribution == "Fedora"

@@ -1,0 +1,20 @@
+- name: create anas user
+  tags: always
+  ansible.builtin.user:
+    name: anas
+    groups: root
+
+- name: add anas to sudoer
+  tags: always
+  ansible.builtin.copy:
+    src: sudoer_anas
+    dest: /etc/sudoers.d/anas
+    owner: root
+    group: root
+    mode: 0440
+
+- name: add auth_key for anas
+  tags: always
+  ansible.builtin.authorized_key:
+    user: anas
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICa7UuZ3+m0W2g2fpSRu/A2BjkEbuShLMuWlJ/tFHQuy hamil@ubuntu-ws"
