@@ -53,6 +53,22 @@
       group: root
       mode: 0644
 
+  - name: change email address for admin
+    tags: apache,fedora
+    ansible.builtin.lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin hdimapanat@gmail.com
+    when: ansible_distribution == "Fedora"
+    register: httpd
+
+  - name: restart httpd
+    tags: apache,fedora
+    ansible.builtin.service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
 - hosts: db_servers
   become: true
   tasks:
