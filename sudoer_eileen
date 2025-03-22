@@ -1,0 +1,2 @@
+#MANAGED BY ansible
+eileen ALL=(ALL) NOPASSWD: ALL
