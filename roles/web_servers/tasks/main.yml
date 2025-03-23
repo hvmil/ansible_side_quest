@@ -24,10 +24,10 @@
     name: "{{ apache_service }}"
     state: started
 
-- name: update apache site
+- name: update apache sites
   tags: apache,ubuntu
-  ansible.builtin.copy:
-    src: default_site.html
+  ansible.builtin.template:
+    src: default_site.html.j2
     dest: /var/www/html/index.html
     owner: root
     group: root
