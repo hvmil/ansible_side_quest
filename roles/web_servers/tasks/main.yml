@@ -1,31 +1,28 @@
-- name: install apache in Ubuntu
-  tags: ubuntu,apache
+- name: install apache on ubuntu server
+  tags: apache,ubuntu
   ansible.builtin.apt:
     name:
-      - apache2
-      - libapache2-mod-php
+      - "{{ apache_package }}"
   when: ansible_distribution == "Ubuntu"
 
-- name: install apache in Fedora
+- name: install apache on fedora server
   tags: apache,fedora
   ansible.builtin.dnf:
     name:
-      - httpd
+      - "{{ apache_package }}"
+    use_backend: dnf
   when: ansible_distribution == "Fedora"
 
-- name: ensure apache is running in Ubuntu
-  tags: apache,ubuntu
-  ansible.builtin.service:
-    name: apache2
-    state: started
-  when: ansible_distribution == "Ubuntu"
+- name: Show package manager
+  tags: test
+  debug:
+    msg: "Ansible thinks this system uses: {{ ansible_pkg_mgr }}"
 
-- name: ensure httpd is running in Fedora
-  tags: apache,fedora
+- name: ensure apache is running 
+  tags: apache
   ansible.builtin.service:
-    name: httpd
+    name: "{{ apache_service }}"
     state: started
-  when: ansible_distribution == "Fedora"
 
 - name: update apache site
   tags: apache,ubuntu
@@ -41,13 +38,6 @@
   ansible.builtin.lineinfile:
     path: /etc/httpd/conf/httpd.conf
     regexp: '^ServerAdmin'
-    line: ServerAdmin hamildimapanat@gmail.com
+    line: ServerAdmin hamil@gmail.com
   when: ansible_distribution == "Fedora"
-  register: httpd
-
-- name: restart httpd
-  tags: apache,fedora
-  ansible.builtin.service:
-    name: httpd
-    state: restarted
-  when: httpd.changed
+  notify: restart_apache
