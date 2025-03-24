@@ -1,0 +1,3 @@
+- name: windows test playbook
+  tags: windows
+  win_ping:

@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: linux
   become: true
   pre_tasks:
 
@@ -18,7 +18,7 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
-- hosts: all
+- hosts: linux
   become: true
   roles:
     - base
@@ -34,6 +34,5 @@
     - db_servers
 
 - hosts: win_server
-  become: true
   roles:
     - win_server
