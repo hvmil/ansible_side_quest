@@ -1,3 +1,12 @@
 - name: windows test playbook
   tags: windows
-  win_ping:
+  ansible.windows.win_ping:
+
+- name: add local user
+  tags: windows,addirectory
+  ansible.windows.win_user:
+    name: etraver
+    password: "{{ user_password }}"
+    state: present
+    password_never_expires: true
+    update_password: on_create

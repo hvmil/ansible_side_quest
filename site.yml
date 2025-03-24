@@ -34,5 +34,7 @@
     - db_servers
 
 - hosts: win_server
+  vars_files:
+    - vault.yml
   roles:
     - win_server
