@@ -1,7 +1,9 @@
-[web_servers]
+[apache]
 192.168.1.86
 192.168.1.79
 
 [db_servers]
 192.168.1.79
 
+[win_server]
+192.168.1.89

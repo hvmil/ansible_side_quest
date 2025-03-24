@@ -33,3 +33,7 @@
   roles:
     - db_servers
 
+- hosts: win_server
+  become: true
+  roles:
+    - win_server
