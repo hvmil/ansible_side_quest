@@ -2,6 +2,16 @@
   tags: windows
   ansible.windows.win_ping:
 
+#Using DISA STIG to address WN22-00-000130
+- name: check for non-NTFS or non-ReFS volumes
+  ansible.windows.win_shell: |
+    Get-Volume | Where-Object { $_.FileSystem -ne 'NTFS' -and $_.FileSystem -ne 'ReFS'}
+  register: non_ntfs_volumes
+
+- name: display non-compliant volumes
+  debug:
+    var: non_ntfs_volumes.stdout_lines
+
 - name: add local user
   tags: windows,addirectory
   ansible.windows.win_user:
@@ -10,3 +20,14 @@
     state: present
     password_never_expires: true
     update_password: on_create
+
+- name: check if python is installed.
+  tags: windows
+  ansible.windows.win_command: python --version
+  register: python_check
+  ignore_errors: yes
+
+- name: show check result
+  tags: windows
+  debug:
+    var: python_check.stdout
