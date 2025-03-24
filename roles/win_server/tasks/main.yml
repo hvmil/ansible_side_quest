@@ -2,15 +2,26 @@
   tags: windows
   ansible.windows.win_ping:
 
-#Using DISA STIG to address WN22-00-000130
+#Enforcing DISA STIG to for Win Server 22
 - name: check for non-NTFS or non-ReFS volumes
-  ansible.windows.win_shell: |
+  tags: volume
+  ansible.windows.win_shell:
     Get-Volume | Where-Object { $_.FileSystem -ne 'NTFS' -and $_.FileSystem -ne 'ReFS'}
   register: non_ntfs_volumes
 
 - name: display non-compliant volumes
+  tags: volume
   debug:
     var: non_ntfs_volumes.stdout_lines
+
+- name: Ensure NoAutoPlayfornonVolume is set to 1
+  tags: WN22-CC-000210,stig,autoplay
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer
+    name: NoAutoPlayfornonVolume
+    data: 1
+    type: dword
+    state: present
 
 - name: add local user
   tags: windows,addirectory
